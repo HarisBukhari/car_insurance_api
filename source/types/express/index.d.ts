@@ -1,0 +1,10 @@
+import { AuthPayload } from "../../dto/Auth.dto";
+
+
+declare global {
+    namespace Express {
+        interface Request {
+            User?: AuthPayload
+        }
+    }
+}

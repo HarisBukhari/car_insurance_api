@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OAuth API Test Page</title>
+  <style>
+    body {
+      background-color: #f0f0f0;
+      font-family: Arial, sans-serif;
+    }
+    h1 {
+      color: #ff4500;
+    }
+    button {
+      background-color: #4caf50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    hr {
+      border: 1px solid #ccc;
+    }
+    form {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+    }
+    label {
+      color: #333;
+    }
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button[type="submit"] {
+      background-color: #008cba;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button[type="submit"]:hover {
+      background-color: #005f6b;
+    }
+    #response {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Test Login</h1>
+  <button id="google-login">Login with Google</button>
+  <button id="facebook-login">Login with Facebook</button>
+  <button id="apple-login">Login with Apple</button>
+  <br>
+  <hr>
+  <h2>Email Login (for testing)</h2>
+  <form id="email-login">
+    <label for="email">Email:</label>
+    <input type="email" id="email" required>
+    <br>
+    <label for="password">Password:</label>
+    <input type="password" id="password" required>
+    <br>
+    <button type="submit">Login</button>
+  </form>
+  <br>
+  <div id="response"></div>
+
+
+  <script>
+    const googleLoginBtn = document.getElementById('google-login');
+    const facebookLoginBtn = document.getElementById('facebook-login');
+    const appleLoginBtn = document.getElementById('apple-login');
+    const emailLoginForm = document.getElementById('email-login');
+    const responseDiv = document.getElementById('response');
+
+    // Replace with your API endpoints
+    const googleLoginUrl = 'http://localhost:3000/auth/google';
+    const facebookLoginUrl = 'http://localhost:3000/auth/facebook';
+    const appleLoginUrl = 'http://localhost:3000/auth/apple'; // (Apple Login requires additional setup)
+
+    googleLoginBtn.addEventListener('click', () => {
+      window.location.href = googleLoginUrl;
+    });
+
+    facebookLoginBtn.addEventListener('click', () => {
+      window.location.href = facebookLoginUrl;
+    });
+
+    appleLoginBtn.addEventListener('click', () => {
+      // Apple Login requires a client-side library like Sign in with Apple JS
+      console.log('Apple Login not implemented (requires additional setup)');
+    });
+
+    emailLoginForm.addEventListener('submit', (event) => {
+      event.preventDefault(); // Prevent default form submission
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      // Simulate email login (replace with your actual API call)
+      fetch('http://localhost:5000/api/email-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          responseDiv.textContent = JSON.stringify(data, null, 2);
+        })
+        .catch(error => {
+          responseDiv.textContent = 'Error: ' + error;
+        });
+    });
+  </script>
+</body>
+</html>
