@@ -4,21 +4,22 @@
   "description": "When you're ready, start your application by running: `docker compose up --build`.",
   "main": "index.js",
   "scripts": {
+    "test": "jest --detectOpenHandles",
     "dev": "nodemon source/index.ts",
+    "test_dev": "jest && npm run dev",
     "start": "node dist/index.js",
-    "build": "tsc -p .",
-    "postinstall": "npm run build"
+    "build": "tsc -p . && tsc -p tsconfig-noemit.json"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/HarisBukhari/O-Auth-Helper-Code.git"
+    "url": "git+https://github.com/HarisBukhari/car_insurance_api.git"
   },
   "author": "Haris Bukhari",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/HarisBukhari/O-Auth-Helper-Code/issues"
+    "url": "https://github.com/HarisBukhari/car_insurance_api/issues"
   },
-  "homepage": "https://github.com/HarisBukhari/O-Auth-Helper-Code#readme",
+  "homepage": "https://github.com/HarisBukhari/car_insurance_api#readme",
   "dependencies": {
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
