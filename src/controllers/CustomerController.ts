@@ -5,7 +5,6 @@ import { validate } from "class-validator"
 import { generateOtop, generateSalt, generateSign, hashPassword, requestOtp, verifyPassword } from "../utilities"
 import { CreateCustomerInputs, CustomersLogin, EditCustomerInputs } from "../dto"
 import { BadRequestError, CustomError, NotFoundError } from "../error"
-import jwt from 'jsonwebtoken'
 import sendEmail from "../services/EmailService"
 import crypto from 'crypto'
 

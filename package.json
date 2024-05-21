@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --detectOpenHandles",
-    "dev": "nodemon source/index.ts",
+    "dev": "nodemon src/index.ts",
     "test_dev": "jest && npm run dev",
     "start": "node dist/index.js",
-    "build": "tsc -p . && tsc -p tsconfig-noemit.json"
+    "build": "tsc -p ."
   },
   "repository": {
     "type": "git",
