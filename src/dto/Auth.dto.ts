@@ -1,3 +1,3 @@
-import { CustomerPayload } from './index'
+import { UserPayload } from './index'
 
-export type AuthPayload = CustomerPayload
+export type AuthPayload = UserPayload

@@ -1,9 +1,12 @@
-import mongoose, { Schema, Document, Model } from "mongoose"
+import mongoose, { Schema, Document } from "mongoose"
 
-interface CustomerDoc extends Document {
+interface UserDoc extends Document {
     firstName: string
     lastName: string
+    fullName: string
     email: string
+    emiratesId: string
+    dateOfBirth: Date
     password: string
     address: string
     phone: string
@@ -18,17 +21,20 @@ interface CustomerDoc extends Document {
     resetPasswordExpires: number
 }
 
-const CustomerSchema = new Schema({
+const UserSchema = new Schema({
     firstName: { type: String },
     lastName: { type: String },
+    fullName: { type: String },
+    emiratesId: { type: String, unique: true },
+    dateOfBirth: { type: Date },
     email: { type: String },
-    password: { type: String},
+    password: { type: String },
     address: { type: String },
     phone: { type: String },
     salt: { type: String },
     verified: { type: Boolean },
     otp: { type: String },
-    otp_expiry: { type: Date }, 
+    otp_expiry: { type: Date },
     lat: { type: Number },
     lng: { type: Number },
     provider: { type: String },
@@ -48,6 +54,6 @@ const CustomerSchema = new Schema({
     timestamps: true
 })
 
-const Customer = mongoose.model<CustomerDoc>('Customer', CustomerSchema)
+const User = mongoose.model<UserDoc>('User', UserSchema)
 
-export { Customer }
+export { User }

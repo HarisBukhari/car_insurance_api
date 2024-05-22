@@ -1,1 +1,1 @@
-export * from './CustomerController'
+export * from './UserController'

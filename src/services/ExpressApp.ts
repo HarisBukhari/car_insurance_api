@@ -1,16 +1,13 @@
 import express, { Application, Request, Response, NextFunction } from "express"
-// import { AdminRoute, VendorRoute, ShoppingRoute, CustomerRoute, DeliveryRoute } from "../routes"
 import path from 'path'
 import helmet from "helmet"
 import cors from "cors"
 import xss from "xss-clean"
 import rateLimiter from "express-rate-limit"
-import { generateSign, html } from "../utilities"
-import { ErrorHandler, errorHandlerMiddleware } from "../middlewares"
-import { CustomerRoute } from "../routes"
+import { errorHandlerMiddleware } from "../middlewares"
+import { UserRoute } from "../routes"
 import passport from "../middlewares/passport"
 import session from "express-session"
-import jwt from 'jsonwebtoken'
 import { ThirdPartyAuth } from "../controllers"
 
 export default async (app: Application) => {
@@ -35,7 +32,7 @@ export default async (app: Application) => {
     app.use(xss())
     app.use(passport.initialize())
     app.use('/images', express.static(path.join(__dirname, '/images')))
-    app.use("/customer", CustomerRoute)
+    app.use("/User", UserRoute)
 
     //Error Middleware
     app.use(errorHandlerMiddleware)
@@ -44,10 +41,10 @@ export default async (app: Application) => {
     /* ------------------- Login/SignUp 3rd Party Section --------------------- */
     //Google
     app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }))
-    app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/customer/login' }), ThirdPartyAuth)
+    app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/User/login' }), ThirdPartyAuth)
     //Facebook
     app.get('/auth/facebook', passport.authenticate('facebook'))
-    app.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/login' }), ThirdPartyAuth)
+    app.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/User/login' }), ThirdPartyAuth)
 
 
     //Login Testing Page
@@ -55,10 +52,10 @@ export default async (app: Application) => {
         res.sendFile(path.join(__dirname, 'public', 'Login.html'))
     })
     //Document
-    app.get('*', (req: Request, res: Response, next: NextFunction) => {
-        const postmanDocURL = 'https://documenter.getpostman.com/view/22277285/2s9YeN2U1H'
-        res.send(html)
-    })
+    // app.get('*', (req: Request, res: Response, next: NextFunction) => {
+    //     const postmanDocURL = 'https://documenter.getpostman.com/view/22277285/2s9YeN2U1H'
+    //     res.send(html)
+    // })
 
     return app
 }

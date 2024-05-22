@@ -1,6 +1,6 @@
 import passport from 'passport'
 import GoogleStrategy from 'passport-google-oauth2'
-import { Customer } from '../models'
+import { User } from '../models'
 import FacebookStrategy from 'passport-facebook'
 import AppleStrategy from 'passport-apple'
 import { BadRequestError, CustomError } from '../error'
@@ -21,7 +21,7 @@ const createUser = async (body: any) => {
     const salt = await generateSalt()
     const password = await hashPassword(generateRandomPassword(), salt)
     const { otp, otp_expiry } = generateOtop()
-    const newUser = new Customer({
+    const newUser = new User({
       email: body.email || '',
       password: password,
       salt: salt,
@@ -57,7 +57,7 @@ passport.use(new GoogleStrategy.Strategy({
   async (accessToken, refreshToken, profile, done) => {
     try {
       // Check for existing user or create new
-      const existingUser = await Customer.findOne({ email: profile.emails[0].value })
+      const existingUser = await User.findOne({ email: profile.emails[0].value })
       if (existingUser) {
         SD()
         return done(null, existingUser);
@@ -85,12 +85,13 @@ passport.use(
     clientID: process.env.FACEBOOK_CLIENT_ID,
     clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
     callbackURL: '/auth/facebook/callback',
-    profileFields: ['id', 'displayName', 'emails', 'photos'], // Request Customer profile details
+    profileFields: ['id', 'displayName', 'emails', 'photos'], // Request User profile details
   },
     async (accessToken, refreshToken, profile, done) => {
       try {
         // Check for existing user or create new
-        const existingUser = await Customer.findOne({ facebookId: profile.id })
+        console.log(profile)
+        const existingUser = await User.findOne({ facebookId: profile.id })
         if (existingUser) {
           SD()
           return done(null, existingUser);
@@ -132,27 +133,27 @@ passport.use(
 //         const decodedIdToken = jwt.decode(idToken, process.env.APPLE_PUBLIC_KEY, { algorithms: ['RS256'] })
 
 
-//         // Extract Customer data from decoded idToken
-//         const CustomerId = decodedIdToken.sub // Customer ID from Apple
+//         // Extract User data from decoded idToken
+//         const UserId = decodedIdToken.sub // User ID from Apple
 //         const email = decodedIdToken.email || '' // Use email or empty string
 
-//         // Check for existing Customer in your database (replace with your logic)
-//         const existingCustomer = await Customer.findOne({ provider: 'apple', providerId: CustomerId })
+//         // Check for existing User in your database (replace with your logic)
+//         const existingUser = await User.findOne({ provider: 'apple', providerId: UserId })
 
-//         if (existingCustomer) {
-//           return done(null, existingCustomer) // Customer already exists
+//         if (existingUser) {
+//           return done(null, existingUser) // User already exists
 //         }
 
-//         // Create new Customer if not found (replace with your Customer model)
-//         const newCustomer = new Customer({
+//         // Create new User if not found (replace with your User model)
+//         const newUser = new User({
 //           email,
 //           provider: 'apple',
-//           providerId: CustomerId,
-//           // Add other relevant Customer details (optional)
+//           providerId: UserId,
+//           // Add other relevant User details (optional)
 //         })
 
-//         await newCustomer.save()
-//         return done(null, newCustomer) // Login successful
+//         await newUser.save()
+//         return done(null, newUser) // Login successful
 //       } catch (error) {
 //         console.error('Error during Apple Sign In:', error)
 //         return done(error, null) // Handle errors appropriately
