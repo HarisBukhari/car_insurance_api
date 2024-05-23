@@ -15,14 +15,16 @@ const createUser = async (body: any) => {
   try {
     const salt = await generateSalt()
     const password = await hashPassword(generateRandomPassword(), salt)
+    const emiratesId = await hashPassword(generateRandomPassword(), salt)
     const { otp, otp_expiry } = generateOtop()
-    const newUser = await User.create({
+    const newUser = new User({
       email: body.email || '',
-      password: password,
-      salt: salt,
+      password,
+      salt,
+      emiratesId,
       phone: "",
-      otp: otp,
-      otp_expiry: otp_expiry,
+      otp,
+      otp_expiry,
       firstName: body.firstName || '',
       lastName: body.lastName || '',
       fullName: body.fullName || '',
@@ -32,12 +34,11 @@ const createUser = async (body: any) => {
       providerId: body.id || '',
       lat: 0,
       lng: 0
-    })
-    if (newUser) {
-      return newUser
-    } else {
-      throw new CustomError('Database Error', 'Passport/createUser')
-    }
+    });
+
+    await newUser.validate(); // Trigger schema validation (if applicable)
+    const savedUser = await newUser.save();
+    return savedUser;
   } catch (err) {
     if (err instanceof BadRequestError) {
       throw err

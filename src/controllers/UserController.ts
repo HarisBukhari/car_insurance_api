@@ -11,11 +11,11 @@ import crypto from 'crypto'
 /* ------------------- Temp User Profile Section --------------------- */
 export const all = async (req: Request, res: Response, next: NextFunction) => {
     try {
-            const UserProfiles = await User.find()
-            if (UserProfiles) {
-                return res.status(200).json(UserProfiles)  // Return after successful response
-            }
-            throw new NotFoundError('User not Found', 'User/all')
+        const UserProfiles = await User.find()
+        if (UserProfiles) {
+            return res.status(200).json(UserProfiles)  // Return after successful response
+        }
+        throw new NotFoundError('User not Found', 'User/all')
     } catch (err) {
         next(err)
     }
@@ -76,18 +76,18 @@ export const UserSignUp = async (req: Request, res: Response, next: NextFunction
         }
         const { otp, otp_expiry } = generateOtop()
         const user = await User.create({
-            email: email,
-            password: userPassword,
-            salt: salt,
-            phone: phone,
-            otp: otp,
-            otp_expiry: otp_expiry,
-            firstName: firstName,
-            lastName: lastName,
-            address: address,
+            email,
+            password,
+            salt,
+            phone,
+            otp,
+            otp_expiry,
+            firstName,
+            lastName,
+            address,
+            emiratesId,
             verified: false,
-            provider: 'app',
-            emiratesId: emiratesId,
+            provider: 'App',
             lat: 0,
             lng: 0
         })
@@ -228,9 +228,9 @@ export const UpdateUserProfile = async (req: Request, res: Response, next: NextF
 
 export const DeleteUserProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const {DUser} = req.params
+        const { DUser } = req.params
         if (DUser) {
-            const UserProfile = await User.findOneAndDelete({_id: DUser})
+            const UserProfile = await User.findOneAndDelete({ _id: DUser })
             if (UserProfile) {
                 return res.status(200).json(UserProfile)  // Return after successful response
             }
