@@ -5,7 +5,7 @@ import cors from "cors"
 import xss from "xss-clean"
 import rateLimiter from "express-rate-limit"
 import { errorHandlerMiddleware } from "../middlewares"
-import { UserRoute } from "../routes"
+import { UserRoute, CarRoute, MotorPolicyRoute, MotorThirdpartyRoute, RenewalPolicyRoute } from "../routes"
 import passport from "../middlewares/passport"
 import session from "express-session"
 import { ThirdPartyAuth } from "../controllers"
@@ -32,7 +32,13 @@ export default async (app: Application) => {
     app.use(xss())
     app.use(passport.initialize())
     app.use('/images', express.static(path.join(__dirname, '/images')))
-    app.use("/User", UserRoute)
+
+    /* ------------------- API Routes --------------------- */
+    app.use("/user", UserRoute)
+    app.use("/car", CarRoute)
+    app.use("/motorpolicy", MotorPolicyRoute)
+    app.use("/motorthirdparty", MotorThirdpartyRoute)
+    app.use("/renewalpolicy", RenewalPolicyRoute)
 
     //Error Middleware
     app.use(errorHandlerMiddleware)

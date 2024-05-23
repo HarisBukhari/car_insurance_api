@@ -1,1 +1,5 @@
 export * from './UserRoute'
+export * from './CarRoute'
+export * from './MotorPolicyRoute'
+export * from './MotorThirdpartyRoute'
+export * from './RenewalPolicyRoute'

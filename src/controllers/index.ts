@@ -1,1 +1,5 @@
 export * from './UserController'
+export * from './CarController'
+export * from './MotorPolicyController'
+export * from './MotorThirdpartyController'
+export * from './RenewalPolicyController'
