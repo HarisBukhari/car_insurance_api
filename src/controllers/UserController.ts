@@ -54,7 +54,7 @@ export const UserSignUp = async (req: Request, res: Response, next: NextFunction
         if (inputErrors.length > 0) {
             throw new BadRequestError('Input validation error', 'User/SignUp')
         }
-        const { email, password, phone, firstName, lastName, address } = UserInputs
+        const { email, password, phone, firstName, lastName, address, emiratesId } = UserInputs
         const salt = await generateSalt()
         const userPassword = await hashPassword(password, salt)
         const ExistingUser = await findUser('', email)
@@ -74,6 +74,7 @@ export const UserSignUp = async (req: Request, res: Response, next: NextFunction
             address: address,
             verified: false,
             provider: 'app',
+            emiratesId: emiratesId,
             lat: 0,
             lng: 0
         })

@@ -20,6 +20,9 @@ export class CreateUserInputs {
     @Length(6, 30)
     address: string
 
+    @Length(6, 30)
+    emiratesId: string
+
 }
 
 export class EditUserInputs {

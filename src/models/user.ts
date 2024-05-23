@@ -40,7 +40,6 @@ const UserSchema = new Schema({
     provider: { type: String },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Number }
-
 }, {
     toJSON: {
         transform(doc, ret) {
