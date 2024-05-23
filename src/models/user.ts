@@ -19,6 +19,7 @@ interface UserDoc extends Document {
     provider: string
     resetPasswordToken: string
     resetPasswordExpires: number
+    providerId: string
 }
 
 const UserSchema = new Schema({
@@ -39,7 +40,8 @@ const UserSchema = new Schema({
     lng: { type: Number },
     provider: { type: String },
     resetPasswordToken: { type: String },
-    resetPasswordExpires: { type: Number }
+    resetPasswordExpires: { type: Number },
+    providerId: { type: String }
 }, {
     toJSON: {
         transform(doc, ret) {

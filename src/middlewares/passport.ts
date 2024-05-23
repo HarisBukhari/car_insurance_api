@@ -1,27 +1,22 @@
+import { User } from '../models'
 import passport from 'passport'
 import GoogleStrategy from 'passport-google-oauth2'
-import { User } from '../models'
 import FacebookStrategy from 'passport-facebook'
 import AppleStrategy from 'passport-apple'
 import { BadRequestError, CustomError } from '../error'
 import { generateOtop, generateRandomPassword, generateSalt, hashPassword } from '../utilities'
 
-function SD() {
-  passport.serializeUser(function (user, done) {
-    done(null, user);
-  });
-
-  passport.deserializeUser(function (user, done) {
-    done(null, user);
-  })
-}
+const GOOGLE_CLIENT_ID = process.env.clientID
+const GOOGLE_CLIENT_SECRET = process.env.clientSecret
+const FACEBOOK_CLIENT_ID = process.env.FACEBOOK_CLIENT_ID
+const FACEBOOK_CLIENT_SECRET = process.env.FACEBOOK_CLIENT_SECRET
 
 const createUser = async (body: any) => {
   try {
     const salt = await generateSalt()
     const password = await hashPassword(generateRandomPassword(), salt)
     const { otp, otp_expiry } = generateOtop()
-    const newUser = new User({
+    const newUser = await User.create({
       email: body.email || '',
       password: password,
       salt: salt,
@@ -30,51 +25,53 @@ const createUser = async (body: any) => {
       otp_expiry: otp_expiry,
       firstName: body.firstName || '',
       lastName: body.lastName || '',
+      fullName: body.fullName || '',
       address: "",
       verified: false,
       provider: body.provider || '',
-      facebookId: body.id || '',
+      providerId: body.id || '',
       lat: 0,
       lng: 0
     })
-    await newUser.save()
-    return newUser
+    if (newUser) {
+      return newUser
+    } else {
+      throw new CustomError('Database Error', 'Passport/createUser')
+    }
   } catch (err) {
     if (err instanceof BadRequestError) {
-        throw err
+      throw err
     }
     throw new CustomError('An unexpected error occurred', 'Middlewares/Passport/createUser')
-}
+  }
 }
 
 // Configure Google OAuth
 passport.use(new GoogleStrategy.Strategy({
-  clientID: process.env.clientID,
-  clientSecret: process.env.clientSecret,
+  clientID: GOOGLE_CLIENT_ID,
+  clientSecret: GOOGLE_CLIENT_SECRET,
   callbackURL: '/auth/google/callback',
   scope: ['profile', 'email']
 },
   async (accessToken, refreshToken, profile, done) => {
     try {
       // Check for existing user or create new
-      const existingUser = await User.findOne({ email: profile.emails[0].value })
+      const existingUser = await User.findOne({ providerId: profile.id })
       if (existingUser) {
-        SD()
-        return done(null, existingUser);
+        return done(null, existingUser)
       }
-      console.log(profile)
       const body = {
+        id: profile.id,
         email: profile.emails[0].value,
         firstName: profile.given_name,
         lastName: profile.family_name,
         provider: profile.provider
       }
       const newUser = await createUser(body)
-      SD()
       return done(null, newUser)
     } catch (error) {
-      console.error('Error during Google authentication:', error);
-      return done(error);
+      console.error('Error during Google authentication:', error)
+      return done(error)
     }
   })
 )
@@ -82,28 +79,26 @@ passport.use(new GoogleStrategy.Strategy({
 // Configure Facebook OAuth
 passport.use(
   new FacebookStrategy.Strategy({
-    clientID: process.env.FACEBOOK_CLIENT_ID,
-    clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+    clientID: FACEBOOK_CLIENT_ID,
+    clientSecret: FACEBOOK_CLIENT_SECRET,
     callbackURL: '/auth/facebook/callback',
     profileFields: ['id', 'displayName', 'emails', 'photos'], // Request User profile details
   },
     async (accessToken, refreshToken, profile, done) => {
       try {
         // Check for existing user or create new
-        console.log(profile)
-        const existingUser = await User.findOne({ facebookId: profile.id })
+        const existingUser = await User.findOne({ providerId: profile.id })
         if (existingUser) {
-          SD()
-          return done(null, existingUser);
+          return done(null, existingUser)
         }
         const body = {
-          facebookId: profile.id,
+          id: profile.id,
           firstName: profile.name.givenName,
           lastName: profile.name.familyName,
+          fullName: profile.displayName,
           provider: profile.provider
         }
         const newUser = await createUser(body)
-        SD()
         return done(null, newUser)
       } catch (error) {
         console.error('Error during Facebook OAuth:', error)

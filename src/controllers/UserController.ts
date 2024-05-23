@@ -8,6 +8,19 @@ import { BadRequestError, CustomError, NotFoundError } from "../error"
 import sendEmail from "../services/EmailService"
 import crypto from 'crypto'
 
+/* ------------------- Temp User Profile Section --------------------- */
+export const all = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+            const UserProfiles = await User.find()
+            if (UserProfiles) {
+                return res.status(200).json(UserProfiles)  // Return after successful response
+            }
+            throw new NotFoundError('User not Found', 'User/all')
+    } catch (err) {
+        next(err)
+    }
+}
+
 
 /* ------------------- User Profile Section --------------------- */
 
@@ -173,17 +186,17 @@ export const OTP = async (req: Request, res: Response, next: NextFunction) => {
 
 export const UserProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const User = req.User;
+        const User = req.User
         if (User) {
-            const UserProfile = await findUser(User._id, "");
+            const UserProfile = await findUser(User._id, "")
             if (UserProfile) {
-                return res.status(200).json(UserProfile);  // Return after successful response
+                return res.status(200).json(UserProfile)  // Return after successful response
             }
-            throw new NotFoundError('User not Found', 'User/UserProfile');
+            throw new NotFoundError('User not Found', 'User/UserProfile')
         }
-        throw new BadRequestError('Invalid User', 'User/UserProfile');
+        throw new BadRequestError('Invalid User', 'User/UserProfile')
     } catch (err) {
-        next(err);
+        next(err)
     }
 }
 
@@ -213,6 +226,22 @@ export const UpdateUserProfile = async (req: Request, res: Response, next: NextF
     }
 }
 
+export const DeleteUserProfile = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const {DUser} = req.params
+        if (DUser) {
+            const UserProfile = await User.findOneAndDelete({_id: DUser})
+            if (UserProfile) {
+                return res.status(200).json(UserProfile)  // Return after successful response
+            }
+            throw new NotFoundError('User not Found', 'User/UserProfile')
+        }
+        throw new BadRequestError('Invalid User', 'User/UserProfile')
+    } catch (err) {
+        next(err)
+    }
+}
+
 export const ForgotPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email } = req.body
@@ -230,8 +259,8 @@ export const ForgotPassword = async (req: Request, res: Response, next: NextFunc
                 const html =
                     `
                     <p>Click on the following button to reset your password:</p>
-                    <button style="background-color: #007bff; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 5px; cursor: pointer;">
-                    <a href="http://localhost:3000/reset-password/${resetToken}>" style="color: white; text-decoration: none;">Reset Password</a>
+                    <button style="background-color: #007bff color: white border: none padding: 15px 30px font-size: 18px border-radius: 5px cursor: pointer">
+                    <a href="http://localhost:3000/reset-password/${resetToken}>" style="color: white text-decoration: none">Reset Password</a>
                     </button>      
                     `
                 await sendEmail(to, subject, text, html) // Wait for email to be sent before continuing
@@ -250,7 +279,7 @@ export const ForgotPassword = async (req: Request, res: Response, next: NextFunc
 export const ResetPassword = async (req: Request, res: Response, next: NextFunction) => {
     const { token, password } = req.body
     if (!token || !password) {
-        return res.status(400).json({ message: 'Missing required fields: token and password' });
+        return res.status(400).json({ message: 'Missing required fields: token and password' })
     }
     try {
         const user = await verifyToken(token)
@@ -271,6 +300,8 @@ export const ThirdPartyAuth = async (req: Request, res: Response, next: NextFunc
     // Successful authentication, generate JWT
     try {
         const user = req.user as { _id: string, email: string, verified: boolean } // Type casting for user ID
+        // req.session.destroy(() => {})
+        console.log(req.session)
         const signature = generateSign({
             _id: user._id,
             email: user.email,

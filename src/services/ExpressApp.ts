@@ -1,4 +1,4 @@
-import express, { Application, Request, Response, NextFunction } from "express"
+import express, { Application } from "express"
 import path from 'path'
 import helmet from "helmet"
 import cors from "cors"
@@ -14,11 +14,11 @@ export default async (app: Application) => {
     app.use(express.static(path.join(__dirname, '../public')))
     app.use(express.json())
     app.use(express.urlencoded({ extended: true }))
-    app.use(session({
-        secret: process.env.AppSecret, // Replace with a strong secret
-        resave: false,
-        saveUninitialized: false
-    }))
+    // app.use(session({
+    //     secret: process.env.AppSecret, // Replace with a strong secret
+    //     resave: false,
+    //     saveUninitialized: false
+    // }))
     app.set('trust proxy', 1)
     app.use(
         rateLimiter({
@@ -46,11 +46,11 @@ export default async (app: Application) => {
 
     /* ------------------- Login/SignUp 3rd Party Section --------------------- */
     //Google
-    app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }))
-    app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/User/login' }), ThirdPartyAuth)
+    app.get('/auth/google', passport.authenticate('google'))
+    app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/User/login', session: false }), ThirdPartyAuth)
     //Facebook
     app.get('/auth/facebook', passport.authenticate('facebook'))
-    app.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/User/login' }), ThirdPartyAuth)
+    app.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/User/login', session: false }), ThirdPartyAuth)
 
 
     //Login Testing Page
