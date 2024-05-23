@@ -7,18 +7,17 @@ import rateLimiter from "express-rate-limit"
 import { errorHandlerMiddleware } from "../middlewares"
 import { UserRoute, CarRoute, MotorPolicyRoute, MotorThirdpartyRoute, RenewalPolicyRoute } from "../routes"
 import passport from "../middlewares/passport"
-import session from "express-session"
 import { ThirdPartyAuth } from "../controllers"
 
 export default async (app: Application) => {
     app.use(express.static(path.join(__dirname, '../public')))
-    app.use(express.json())
     app.use(express.urlencoded({ extended: true }))
-    // app.use(session({
-    //     secret: process.env.AppSecret, // Replace with a strong secret
-    //     resave: false,
-    //     saveUninitialized: false
-    // }))
+    app.use(express.json())
+    app.use(helmet())
+    app.use(cors())
+    app.use(xss())
+    app.use(passport.initialize())
+    app.use('/images', express.static(path.join(__dirname, '/images')))
     app.set('trust proxy', 1)
     app.use(
         rateLimiter({
@@ -26,12 +25,6 @@ export default async (app: Application) => {
             max: 100, // limit each IP to 100 requests per windowMs
         })
     )
-    app.use(express.json())
-    app.use(helmet())
-    app.use(cors())
-    app.use(xss())
-    app.use(passport.initialize())
-    app.use('/images', express.static(path.join(__dirname, '/images')))
 
     /* ------------------- API Routes --------------------- */
     app.use("/user", UserRoute)

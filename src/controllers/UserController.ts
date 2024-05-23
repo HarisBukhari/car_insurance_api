@@ -300,8 +300,6 @@ export const ThirdPartyAuth = async (req: Request, res: Response, next: NextFunc
     // Successful authentication, generate JWT
     try {
         const user = req.user as { _id: string, email: string, verified: boolean } // Type casting for user ID
-        // req.session.destroy(() => {})
-        console.log(req.session)
         const signature = generateSign({
             _id: user._id,
             email: user.email,

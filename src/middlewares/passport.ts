@@ -34,11 +34,11 @@ const createUser = async (body: any) => {
       providerId: body.id || '',
       lat: 0,
       lng: 0
-    });
+    })
 
-    await newUser.validate(); // Trigger schema validation (if applicable)
-    const savedUser = await newUser.save();
-    return savedUser;
+    await newUser.validate() // Trigger schema validation (if applicable)
+    const savedUser = await newUser.save()
+    return savedUser
   } catch (err) {
     if (err instanceof BadRequestError) {
       throw err
@@ -83,7 +83,7 @@ passport.use(
     clientID: FACEBOOK_CLIENT_ID,
     clientSecret: FACEBOOK_CLIENT_SECRET,
     callbackURL: '/auth/facebook/callback',
-    profileFields: ['id', 'displayName', 'emails', 'photos'], // Request User profile details
+    profileFields: ['id', 'displayName', 'email', 'photos'], // Request User profile details
   },
     async (accessToken, refreshToken, profile, done) => {
       try {
