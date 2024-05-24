@@ -41,15 +41,19 @@ export default async (app: Application) => {
     /* ------------------- Login/SignUp 3rd Party Section --------------------- */
     //Google
     app.get('/auth/google', passport.authenticate('google'))
-    app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/User/login', session: false }), ThirdPartyAuth)
+    app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/', session: false }), ThirdPartyAuth)
+    // app.get('/auth/google/callback', passport.authenticate('google', { successRedirect: '/welcome', failureRedirect: '/', session: false }), ThirdPartyAuth)
     //Facebook
     app.get('/auth/facebook', passport.authenticate('facebook'))
-    app.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/User/login', session: false }), ThirdPartyAuth)
+    app.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/', session: false }), ThirdPartyAuth)
 
 
     //Login Testing Page
     app.get('/', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'Login.html'))
+        res.sendFile(path.join(__dirname, '../public', 'Login.html'))
+    })
+    app.get('/welcome', (req, res) => {
+        res.sendFile(path.join(__dirname, '../public', 'Welcome.html'))
     })
     //Document
     // app.get('*', (req: Request, res: Response, next: NextFunction) => {
