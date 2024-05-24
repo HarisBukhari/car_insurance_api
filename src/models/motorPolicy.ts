@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, ObjectId } from "mongoose"
 
 type Gender = 'MALE' | 'FEMALE'
-type Status = 'Active' | 'Expired' | 'Cancelled'
+type Status = 'Pending' | 'Processing' | 'Approved' | 'Rejected'
 
 interface MotorPolicyDoc extends Document {
     user: ObjectId
@@ -56,13 +56,16 @@ const motorPolicySchema = new Schema({
     policyToDate: { type: Date },
     licenseIssueDate: { type: Date },
     licenseExpiryDate: { type: Date },
+    // Step 4 Policy Information
+    // Car model already have the properties
+
     // Step 5 Document Uploads (handled separately)
     // Additional fields
     policyNumber: { type: String },
     status: {
         type: { type: String },
-        enum: ['Active', 'Expired', 'Cancelled'],
-    },
+        enum: ['Pending', 'Processing', 'Approved', 'Rejected'],
+    }
 })
 
 const MotorPolicy = mongoose.model<MotorPolicyDoc>('MotorPolicy', motorPolicySchema)

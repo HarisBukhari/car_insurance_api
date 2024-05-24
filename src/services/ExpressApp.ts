@@ -5,7 +5,7 @@ import cors from "cors"
 import xss from "xss-clean"
 import rateLimiter from "express-rate-limit"
 import { errorHandlerMiddleware } from "../middlewares"
-import { UserRoute, CarRoute, MotorPolicyRoute, MotorThirdpartyRoute, RenewalPolicyRoute } from "../routes"
+import { UserRoute, CarRoute, MotorPolicyRoute, MotorThirdpartyRoute, IntimateClaimRoute, RenewalPolicyRoute } from "../routes"
 import passport from "../middlewares/passport"
 import { ThirdPartyAuth } from "../controllers"
 
@@ -31,6 +31,7 @@ export default async (app: Application) => {
     app.use("/car", CarRoute)
     app.use("/motorpolicy", MotorPolicyRoute)
     app.use("/motorthirdparty", MotorThirdpartyRoute)
+    app.use("/intimateClaim", IntimateClaimRoute)
     app.use("/renewalpolicy", RenewalPolicyRoute)
 
     //Error Middleware

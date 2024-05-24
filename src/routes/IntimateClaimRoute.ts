@@ -1,10 +1,11 @@
 import express from "express"
-import { createCar, getCarById, deleteCar,getAllCars, updateCar } from "../controllers"
+import { HelloFromClain } from "../controllers"
 import { Authenticate } from "../middlewares"
 
 const router = express.Router()
 
 /* ------------------- Login/SignUp Section --------------------- */
+router.get('/', HelloFromClain)
 // router.post('/login', UserLogin)
 // router.post('/forgot-password', ForgotPassword)
 // router.post('/reset-password', ResetPassword)
@@ -19,4 +20,4 @@ const router = express.Router()
 // router.patch('/profile', UpdateUserProfile)
 
 
-export { router as CarRoute }
+export { router as IntimateClaimRoute }
