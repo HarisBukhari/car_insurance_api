@@ -1,2 +1,7 @@
 export * from './Auth.dto'
+export * from './Car.dto'
+export * from './IntimateClain.dto'
+export * from './MotorPolicy.dto'
+export * from './MotorThirdparty.dto'
+export * from './RenewalPolicy.dto'
 export * from './User.dto'

@@ -94,7 +94,7 @@ export const UserSignUp = async (req: Request, res: Response, next: NextFunction
         if (user) {
             // await requestOtp(otp, phone)
             const signature = generateSign({
-                _id: user._id,
+                _id: user._id.toString(),
                 email: user.email,
                 verified: false,
             })
@@ -125,7 +125,7 @@ export const UserLogin = async (req: Request, res: Response, next: NextFunction)
                 let validPassword = await verifyPassword(password, user.password)
                 if (validPassword) {
                     const sign = generateSign({
-                        _id: user._id,
+                        _id: user._id.toString(),
                         email: user.email,
                         verified: false,
                     })

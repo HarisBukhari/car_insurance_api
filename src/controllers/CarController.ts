@@ -2,12 +2,8 @@ import { Request, Response, NextFunction } from "express"
 import { Car } from "../models"
 import { plainToClass } from "class-transformer"
 import { validate } from "class-validator"
-import { generateOtop, generateSalt, generateSign, hashPassword, requestOtp, verifyPassword } from "../utilities"
-import { CreateUserInputs, UsersLogin, EditUserInputs } from "../dto"
+import { CreateCarInputs, EditCarInputs } from "../dto"
 import { BadRequestError, CustomError, NotFoundError } from "../error"
-import sendEmail from "../services/EmailService"
-import crypto from 'crypto'
-import { CreateCarInputs, EditCarInputs } from "../dto/Car.dto"
 
 // Function to create a new car
 export const createCar = async (req: Request, res: Response, next: NextFunction) => {
@@ -17,26 +13,17 @@ export const createCar = async (req: Request, res: Response, next: NextFunction)
         if (inputErrors.length > 0) {
             throw new BadRequestError('Input validation error', 'User/SignUp')
         }
-        const { bank, bodyType, carModel, chassisNumber, color, cylinderCapacity, engineSize, insuredAsTPLastYear, make, modelYear, placeOfRegistration, region, seatingCapacity, tcfNumber, transmission, trim, valueOfVehicle, vehicleRegistrationDate } = CarInputs
+        const {
+            bank, bodyType, carModel, chassisNumber, color, cylinderCapacity,
+            engineSize, insuredAsTPLastYear, make, modelYear, placeOfRegistration,
+            region, seatingCapacity, tcfNumber, transmission, trim, valueOfVehicle,
+            vehicleRegistrationDate
+        } = CarInputs
         const car = await Car.create({
-            make,
-            carModel,
-            bodyType,
-            modelYear,
-            trim,
-            engineSize,
-            transmission,
-            region,
-            valueOfVehicle,
-            cylinderCapacity,
-            vehicleRegistrationDate,
-            insuredAsTPLastYear,
-            chassisNumber,
-            color,
-            placeOfRegistration,
-            tcfNumber,
-            bank,
-            seatingCapacity
+            bank, bodyType, carModel, chassisNumber, color, cylinderCapacity,
+            engineSize, insuredAsTPLastYear, make, modelYear, placeOfRegistration,
+            region, seatingCapacity, tcfNumber, transmission, trim, valueOfVehicle,
+            vehicleRegistrationDate
         })
         if (car) {
             return res.status(201).json(car)
@@ -76,11 +63,10 @@ export const getCarById = async (req: Request, res: Response, next: NextFunction
     }
 }
 
-
 // Function to update a car by ID
 export const updateCar = async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params
     try {
-        const { id } = req.params
         const CarInputs = plainToClass(EditCarInputs, req.body)
         const inputErrors = await validate(CarInputs, { validationError: { target: true } })
         if (inputErrors.length > 0) {
@@ -104,7 +90,7 @@ export const deleteCar = async (req: Request, res: Response, next: NextFunction)
         if (deletedCar) {
             return res.status(204).json(deletedCar)  // Return after successful response
         }
-        throw new NotFoundError('Cars not Found', 'Car/updateCar')
+        throw new NotFoundError('Cars not Found', 'Car/deleteCar')
     } catch (err) {
         next(err)
     }

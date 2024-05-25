@@ -1,74 +1,76 @@
-import { IsString, IsNumber, IsEnum, IsBoolean, IsDate, Length, IsOptional } from "class-validator";
+import { Transform } from "class-transformer"
+import { IsString, IsNumber, IsEnum, IsBoolean, IsDate, Length, IsOptional } from "class-validator"
 
 export class CreateCarInputs {
 
     @IsString()
-    make: string;
+    make: string
 
     @IsString()
-    carModel: string;
+    carModel: string
 
     @IsString()
-    bodyType: string;
+    bodyType: string
 
     @IsNumber()
-    modelYear: number;
+    modelYear: number
 
     @IsString()
-    trim: string;
+    trim: string
 
     @IsString()
-    engineSize: string;
+    engineSize: string
 
     @IsString()
-    transmission: string;
+    transmission: string
 
     @IsEnum(['GCC', 'NON-GCC'])
-    region: string;
+    region: string
 
     @IsNumber()
-    valueOfVehicle: number;
+    valueOfVehicle: number
 
     @IsNumber()
-    cylinderCapacity: number;
+    cylinderCapacity: number
 
+    @Transform(({ value }) => new Date(value))
     @IsDate()
-    vehicleRegistrationDate: Date;
+    vehicleRegistrationDate: Date
 
     @IsBoolean()
-    insuredAsTPLastYear: boolean;
+    insuredAsTPLastYear: boolean
 
     @IsString()
-    chassisNumber: string;
+    chassisNumber: string
 
     @IsString()
-    color: string;
+    color: string
 
     @IsString()
-    placeOfRegistration: string;
+    placeOfRegistration: string
 
     @IsString()
-    tcfNumber: string;
+    tcfNumber: string
 
     @IsString()
-    bank: string;
+    bank: string
 
     @IsNumber()
-    seatingCapacity: number;
+    seatingCapacity: number
 }
 
 
 export class EditCarInputs {
 
     @IsString()
-    color?: string;
+    color?: string
 
     @IsString()
-    transmission?: string;
+    transmission?: string
 
     @IsString()
-    placeOfRegistration?: string;
+    placeOfRegistration?: string
 
     @IsString()
-    bank?: string;
+    bank?: string
 }
