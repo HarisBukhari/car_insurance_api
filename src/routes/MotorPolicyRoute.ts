@@ -1,5 +1,5 @@
 import express from "express"
-import { createMotorPolicy } from "../controllers"
+import { createMotorPolicy, deleteMotorPolicy, getAllMotorPolicies, getMotorPolicyById } from "../controllers"
 import { Authenticate } from "../middlewares"
 
 const router = express.Router()
@@ -16,8 +16,9 @@ router.use(Authenticate)
 // /* ------------------- Profile Section --------------------- */
 // router.patch('/verify', UserVerify)
 router.post('/createMotorPolicy', createMotorPolicy)
-// router.get('/otp', OTP)
-// router.get('/profile', UserProfile)
+router.delete('/:id', deleteMotorPolicy)
+router.get('/:id', getMotorPolicyById)
+router.get('/MotorPolicies', getAllMotorPolicies)
 // router.patch('/profile', UpdateUserProfile)
 
 

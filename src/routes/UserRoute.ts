@@ -10,7 +10,7 @@ router.post('/login', UserLogin)
 router.post('/forgot-password', ForgotPassword)
 router.post('/reset-password', ResetPassword)
 router.get('/all', all)
-router.post('/delete/:DUser', DeleteUserProfile)
+router.delete('/:DUser', DeleteUserProfile)
 
 /* ------------------- Authentication Section --------------------- */
 router.use(Authenticate)
