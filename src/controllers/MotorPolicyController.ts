@@ -10,7 +10,7 @@ import mongoose from "mongoose"
 export const createMotorPolicy = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const session = await mongoose.startSession()
-        const files = req.files as [Express.Multer.File]
+        const files = req.files as { [key: string]: Express.Multer.File[] }
         let motorPolicy
         try {
             await session.withTransaction(async () => {
@@ -28,9 +28,8 @@ export const createMotorPolicy = async (req: Request, res: Response, next: NextF
                 if (!files) {
                     return res.status(400).send('No files uploaded!');
                 }
-                console.log(files)
-                //@ts-ignore
-                const { images = {}, testimage = {} } = files
+                const { mulkiya_Hayaza, drivingLicense, emiratesID, mulkiya, lpo, drivingLicense_1, hayaza_1, passing_1, others_1, lpo_1 } = files;
+                console.log(mulkiya_Hayaza)
                 const car = new Car(CarInputs)
                 await car.save({ session })
                 const motorThirdparty = new MotorThirdparty(MotorThirdpartyInputs)
@@ -42,7 +41,16 @@ export const createMotorPolicy = async (req: Request, res: Response, next: NextF
                     car: car._id,
                     motorThirdparty: motorThirdparty._id,
                     ...MotorPolicyInputs,
-                    image: images[0].path || '',
+                    mulkiya_Hayaza: mulkiya_Hayaza?.[0]?.path || '',
+                    drivingLicense: drivingLicense?.[0]?.path || '',
+                    emiratesID: emiratesID?.[0]?.path || '',
+                    mulkiya: mulkiya?.[0]?.path || '',
+                    lpo: lpo?.[0]?.path || '',
+                    drivingLicense_1: drivingLicense_1?.[0]?.path || '',
+                    hayaza_1: hayaza_1?.[0]?.path || '',
+                    passing_1: passing_1?.[0]?.path || '',
+                    others_1: others_1?.[0]?.path || '',
+                    lpo_1: lpo_1?.[0]?.path || ''
                 }
                 motorPolicy = new MotorPolicy(docmotorPolicy)
                 await motorPolicy.save({ session })

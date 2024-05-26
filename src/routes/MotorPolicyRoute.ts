@@ -20,8 +20,16 @@ const imageStorage = multer.diskStorage({
 const imageUpload = multer({ storage: imageStorage })
 
 const handleImageUpload = imageUpload.fields([
-    { name: 'images', maxCount: 1 },
-    { name: 'test', maxCount: 1 }
+    { name: 'mulkiya_Hayaza', maxCount: 1 },
+    { name: 'drivingLicense', maxCount: 1 },
+    { name: 'emiratesID', maxCount: 1 },
+    { name: 'mulkiya', maxCount: 1 },
+    { name: 'lpo', maxCount: 1 },
+    { name: 'drivingLicense_1', maxCount: 1 },
+    { name: 'hayaza_1', maxCount: 1 },
+    { name: 'passing_1', maxCount: 1 },
+    { name: 'others_1', maxCount: 1 },
+    { name: 'lpo_1', maxCount: 1 }
 ])
 
 /* ------------------- Authentication Section --------------------- */

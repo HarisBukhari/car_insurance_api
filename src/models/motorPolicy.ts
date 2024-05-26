@@ -21,7 +21,16 @@ interface MotorPolicyDoc extends Document {
     licenseExpiryDate?: Date
     policyNumber?: string
     status?: Status
-    image?: string
+    mulkiya_Hayaza?: string
+    drivingLicense?: string
+    emiratesID?: string
+    mulkiya?: string
+    lpo?: string
+    drivingLicense_1?: string
+    hayaza_1?: string
+    passing_1?: string
+    others_1?: string
+    lpo_1?: string
 }
 
 
@@ -67,7 +76,16 @@ const motorPolicySchema = new Schema({
         type: { type: String },
         enum: ['Pending', 'Processing', 'Approved', 'Rejected'],
     },
-    image: { type: String }
+    mulkiya_Hayaza: { type: String },
+    drivingLicense: { type: String },
+    emiratesID: { type: String },
+    mulkiya: { type: String },
+    lpo: { type: String },
+    drivingLicense_1: { type: String },
+    hayaza_1: { type: String },
+    passing_1: { type: String },
+    others_1: { type: String },
+    lpo_1: { type: String }
 })
 
 const MotorPolicy = mongoose.model<MotorPolicyDoc>('MotorPolicy', motorPolicySchema)
