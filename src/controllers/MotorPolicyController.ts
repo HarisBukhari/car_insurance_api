@@ -5,6 +5,7 @@ import { validate } from "class-validator"
 import { CreateCarInputs, CreateMotorPolicyInputs, CreateMotorThirdpartyInputs } from "../dto"
 import { BadRequestError, CustomError, NotFoundError } from "../error"
 import mongoose from "mongoose"
+import { promisify } from 'util'
 
 // Function to create a new MotorPolicy
 export const createMotorPolicy = async (req: Request, res: Response, next: NextFunction) => {
@@ -26,10 +27,9 @@ export const createMotorPolicy = async (req: Request, res: Response, next: NextF
                     throw new BadRequestError('MotorPolicy Input validation error(s)', 'MotorPolicy/createMotorPolicy')
                 }
                 if (!files) {
-                    return res.status(400).send('No files uploaded!');
+                    return res.status(400).send('No files uploaded!')
                 }
-                const { mulkiya_Hayaza, drivingLicense, emiratesID, mulkiya, lpo, drivingLicense_1, hayaza_1, passing_1, others_1, lpo_1 } = files;
-                console.log(mulkiya_Hayaza)
+                const { mulkiya_Hayaza, drivingLicense, emiratesID, mulkiya, lpo, drivingLicense_1, hayaza_1, passing_1, others_1, lpo_1 } = files
                 const car = new Car(CarInputs)
                 await car.save({ session })
                 const motorThirdparty = new MotorThirdparty(MotorThirdpartyInputs)
@@ -124,13 +124,45 @@ export const deleteMotorPolicy = async (req: Request, res: Response, next: NextF
                 const motorPolicy = await MotorPolicy.findOne({ _id: motorPolicyId, user: req.User._id })
 
                 if (motorPolicy) {
-                    // Delete car and motorThirdparty references
+                    // Delete car and motorThirdparty references (existing code)
                     const car = await Car.findOneAndDelete({ _id: motorPolicy.car }, { session })
                     const motorThirdparty = await MotorThirdparty.findOneAndDelete({ _id: motorPolicy.motorThirdparty }, { session })
-                    const DmotorPolicy = await MotorPolicy.findOneAndDelete({ _id: motorPolicy._id }, { session })
 
-                    if (car || motorThirdparty || DmotorPolicy) {
-                        return res.status(200).json({ car, motorThirdparty, DmotorPolicy })  // Return after successful response
+                    // Extract file paths from MotorPolicy object
+                    const filePaths = [
+                        motorPolicy.mulkiya_Hayaza,
+                        motorPolicy.drivingLicense,
+                        motorPolicy.emiratesID,
+                        motorPolicy.mulkiya,
+                        motorPolicy.lpo,
+                        motorPolicy.drivingLicense_1,
+                        motorPolicy.hayaza_1,
+                        motorPolicy.passing_1,
+                        motorPolicy.others_1,
+                        motorPolicy.lpo_1
+                    ]
+
+                    // Function to delete a file using promises (cleaner approach)
+                    const unlinkAsync = promisify(require('fs').unlink)
+
+                    // Delete files concurrently (optional for performance)
+                    const deletePromises = filePaths.filter(Boolean).map(async (filePath) => { // filter out empty paths
+                        if (filePath) {
+                            try {
+                                await unlinkAsync(filePath)
+                                console.log(`Deleted file: ${filePath}`) // Optional logging
+                            } catch (error) {
+                                console.error(`Error deleting file: ${filePath}`, error)
+                            }
+                        }
+                    })
+
+                    await Promise.all(deletePromises) // Wait for all deletions to finish
+
+                    const deletedMotorPolicy = await MotorPolicy.findOneAndDelete({ _id: motorPolicy._id }, { session })
+
+                    if (car || motorThirdparty || deletedMotorPolicy) {
+                        return res.status(200).json({ car, motorThirdparty, deletedMotorPolicy })
                     }
                 }
                 throw new NotFoundError('MotorPolicy not found or does not belong to the user', 'MotorPolicy/deleteMotorPolicy')
