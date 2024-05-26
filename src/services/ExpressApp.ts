@@ -63,5 +63,3 @@ export default async (app: Application) => {
 
     return app
 }
-
-

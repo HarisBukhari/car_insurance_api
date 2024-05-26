@@ -13,7 +13,8 @@ export const createMotorPolicy = async (req: Request, res: Response, next: NextF
         let motorPolicy
         try {
             await session.withTransaction(async () => {
-                const CarInputs = plainToClass(CreateCarInputs, req.body.car)
+                //Validations
+                const CarInputs = plainToClass(CreateCarInputs, req.body.Car)
                 const MotorThirdpartyInputs = plainToClass(CreateMotorThirdpartyInputs, req.body.MotorThirdparty)
                 const MotorPolicyInputs = plainToClass(CreateMotorPolicyInputs, req.body.MotorPolicy)
                 const CarInputErrors = await validate(CarInputs, { validationError: { target: true } })
@@ -23,6 +24,8 @@ export const createMotorPolicy = async (req: Request, res: Response, next: NextF
                 if (CarInputErrors.length > 0 || MotorThirdpartyInputsErrors.length > 0 || MotorPolicyInputsErrors.length > 0) {
                     throw new BadRequestError('MotorPolicy Input validation error(s)', 'MotorPolicy/createMotorPolicy')
                 }
+                // const files = req.files as [Express.Multer.File]
+                // const images = files.map((file: Express.Multer.File) => file.filename)
 
                 const car = new Car(CarInputs)
                 await car.save({ session })
@@ -34,7 +37,8 @@ export const createMotorPolicy = async (req: Request, res: Response, next: NextF
                     user: convertedUserId,
                     car: car._id,
                     motorThirdparty: motorThirdparty._id,
-                    ...MotorPolicyInputs
+                    ...MotorPolicyInputs,
+                    // images
                 }
                 motorPolicy = new MotorPolicy(docmotorPolicy)
                 await motorPolicy.save({ session })
@@ -55,7 +59,7 @@ export const createMotorPolicy = async (req: Request, res: Response, next: NextF
 // Function to get all MotorPolicies
 export const getAllMotorPolicies = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const MotorPolicies = await MotorPolicy.findOne({ user: req.User._id })
+        const MotorPolicies = await MotorPolicy.find({ user: req.User._id })
         if (MotorPolicies) {
             return res.status(200).json(MotorPolicies)  // Return after successful response
         }
