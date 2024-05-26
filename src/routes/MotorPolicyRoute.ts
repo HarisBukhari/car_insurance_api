@@ -1,5 +1,5 @@
 import express from "express"
-import { createMotorPolicy, deleteMotorPolicy, getAllMotorPolicies, getMotorPolicyById } from "../controllers"
+import { createMotorPolicy, deleteMotorPolicy, getAllMotorPolicies, getMotorPolicyById, updateMotorPolicy } from "../controllers"
 import { Authenticate } from "../middlewares"
 import multer from "multer"
 
@@ -24,8 +24,9 @@ router.use(Authenticate)
 
 // /* ------------------- Motor Policy Section --------------------- */
 router.get('/MotorPolicies', getAllMotorPolicies)
-router.post('/createMotorPolicy', createMotorPolicy)
+router.post('/createMotorPolicy', images, createMotorPolicy)
 router.delete('/:id', deleteMotorPolicy)
+router.post('/:id', updateMotorPolicy)
 router.get('/:id', getMotorPolicyById)
 
 

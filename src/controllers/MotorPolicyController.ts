@@ -11,12 +11,13 @@ export const createMotorPolicy = async (req: Request, res: Response, next: NextF
     try {
         const session = await mongoose.startSession()
         let motorPolicy
+        console.log(req.body)
         try {
             await session.withTransaction(async () => {
                 //Validations
-                const CarInputs = plainToClass(CreateCarInputs, req.body.Car)
-                const MotorThirdpartyInputs = plainToClass(CreateMotorThirdpartyInputs, req.body.MotorThirdparty)
-                const MotorPolicyInputs = plainToClass(CreateMotorPolicyInputs, req.body.MotorPolicy)
+                const CarInputs = plainToClass(CreateCarInputs, JSON.parse(req.body.Car))
+                const MotorThirdpartyInputs = plainToClass(CreateMotorThirdpartyInputs, JSON.parse(req.body.MotorThirdparty))
+                const MotorPolicyInputs = plainToClass(CreateMotorPolicyInputs, JSON.parse(req.body.MotorPolicy))
                 const CarInputErrors = await validate(CarInputs, { validationError: { target: true } })
                 const MotorThirdpartyInputsErrors = await validate(MotorThirdpartyInputs, { validationError: { target: true } })
                 const MotorPolicyInputsErrors = await validate(MotorPolicyInputs, { validationError: { target: true } })
@@ -24,8 +25,8 @@ export const createMotorPolicy = async (req: Request, res: Response, next: NextF
                 if (CarInputErrors.length > 0 || MotorThirdpartyInputsErrors.length > 0 || MotorPolicyInputsErrors.length > 0) {
                     throw new BadRequestError('MotorPolicy Input validation error(s)', 'MotorPolicy/createMotorPolicy')
                 }
-                // const files = req.files as [Express.Multer.File]
-                // const images = files.map((file: Express.Multer.File) => file.filename)
+                const files = req.files as [Express.Multer.File]
+                const images = files.map((file: Express.Multer.File) => file.filename)
 
                 const car = new Car(CarInputs)
                 await car.save({ session })
@@ -38,7 +39,7 @@ export const createMotorPolicy = async (req: Request, res: Response, next: NextF
                     car: car._id,
                     motorThirdparty: motorThirdparty._id,
                     ...MotorPolicyInputs,
-                    // images
+                    images
                 }
                 motorPolicy = new MotorPolicy(docmotorPolicy)
                 await motorPolicy.save({ session })
