@@ -10,8 +10,8 @@ import mongoose from "mongoose"
 export const createMotorPolicy = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const session = await mongoose.startSession()
+        const files = req.files as [Express.Multer.File]
         let motorPolicy
-        console.log(req.body)
         try {
             await session.withTransaction(async () => {
                 //Validations
@@ -25,9 +25,12 @@ export const createMotorPolicy = async (req: Request, res: Response, next: NextF
                 if (CarInputErrors.length > 0 || MotorThirdpartyInputsErrors.length > 0 || MotorPolicyInputsErrors.length > 0) {
                     throw new BadRequestError('MotorPolicy Input validation error(s)', 'MotorPolicy/createMotorPolicy')
                 }
-                const files = req.files as [Express.Multer.File]
-                const images = files.map((file: Express.Multer.File) => file.filename)
-
+                if (!files) {
+                    return res.status(400).send('No files uploaded!');
+                }
+                console.log(files)
+                //@ts-ignore
+                const { image = {}, testimage = {} } = files
                 const car = new Car(CarInputs)
                 await car.save({ session })
                 const motorThirdparty = new MotorThirdparty(MotorThirdpartyInputs)
@@ -39,7 +42,7 @@ export const createMotorPolicy = async (req: Request, res: Response, next: NextF
                     car: car._id,
                     motorThirdparty: motorThirdparty._id,
                     ...MotorPolicyInputs,
-                    images
+                    image: image.path || '',
                 }
                 motorPolicy = new MotorPolicy(docmotorPolicy)
                 await motorPolicy.save({ session })

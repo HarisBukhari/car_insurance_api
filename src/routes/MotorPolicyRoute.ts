@@ -8,23 +8,23 @@ const router = express.Router()
 //Multer
 const imageStorage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'dist/images')
+        cb(null, 'dist/images'); // Destination directory for uploaded images
     },
     filename: function (req, file, cb) {
-        //Error 2 
-        // cb(null, new Date().toISOString() + '_' + file.originalname)
-        cb(null, new Date().toISOString().replace(/:/g, "-") + "_" + file.originalname)
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9); // Generate unique timestamp + random number
+        const originalExt = file.originalname.split('.').pop(); // Extract original file extension
+        cb(null, uniqueSuffix + '.' + originalExt); // Combine unique suffix and original extension
     }
 })
 
-const images = multer({ storage: imageStorage }).array('images', 10)
+const imageUpload = multer({ storage: imageStorage })
 
 /* ------------------- Authentication Section --------------------- */
 router.use(Authenticate)
 
 // /* ------------------- Motor Policy Section --------------------- */
 router.get('/MotorPolicies', getAllMotorPolicies)
-router.post('/createMotorPolicy', images, createMotorPolicy)
+router.post('/createMotorPolicy', imageUpload.any(), createMotorPolicy)
 router.delete('/:id', deleteMotorPolicy)
 router.post('/:id', updateMotorPolicy)
 router.get('/:id', getMotorPolicyById)
