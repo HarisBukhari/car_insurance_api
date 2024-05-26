@@ -19,12 +19,17 @@ const imageStorage = multer.diskStorage({
 
 const imageUpload = multer({ storage: imageStorage })
 
+const handleImageUpload = imageUpload.fields([
+    { name: 'images', maxCount: 1 },
+    { name: 'test', maxCount: 1 }
+])
+
 /* ------------------- Authentication Section --------------------- */
 router.use(Authenticate)
 
 // /* ------------------- Motor Policy Section --------------------- */
 router.get('/MotorPolicies', getAllMotorPolicies)
-router.post('/createMotorPolicy', imageUpload.any(), createMotorPolicy)
+router.post('/createMotorPolicy', handleImageUpload, createMotorPolicy)
 router.delete('/:id', deleteMotorPolicy)
 router.post('/:id', updateMotorPolicy)
 router.get('/:id', getMotorPolicyById)

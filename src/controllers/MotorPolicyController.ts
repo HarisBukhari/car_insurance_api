@@ -30,7 +30,7 @@ export const createMotorPolicy = async (req: Request, res: Response, next: NextF
                 }
                 console.log(files)
                 //@ts-ignore
-                const { image = {}, testimage = {} } = files
+                const { images = {}, testimage = {} } = files
                 const car = new Car(CarInputs)
                 await car.save({ session })
                 const motorThirdparty = new MotorThirdparty(MotorThirdpartyInputs)
@@ -42,7 +42,7 @@ export const createMotorPolicy = async (req: Request, res: Response, next: NextF
                     car: car._id,
                     motorThirdparty: motorThirdparty._id,
                     ...MotorPolicyInputs,
-                    image: image.path || '',
+                    image: images[0].path || '',
                 }
                 motorPolicy = new MotorPolicy(docmotorPolicy)
                 await motorPolicy.save({ session })
