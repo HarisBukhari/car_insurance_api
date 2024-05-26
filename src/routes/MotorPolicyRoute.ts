@@ -38,9 +38,9 @@ router.use(Authenticate)
 // /* ------------------- Motor Policy Section --------------------- */
 router.get('/MotorPolicies', getAllMotorPolicies)
 router.post('/createMotorPolicy', handleImageUpload, createMotorPolicy)
+router.get('/:id', getMotorPolicyById)
 router.delete('/:id', deleteMotorPolicy)
 router.post('/:id', updateMotorPolicy)
-router.get('/:id', getMotorPolicyById)
 
 
 export { router as MotorPolicyRoute }

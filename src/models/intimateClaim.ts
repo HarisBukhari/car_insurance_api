@@ -68,6 +68,6 @@ const claimSchema = new Schema({
     thirdPartyDriverEmail: { type: String },
 })
 
-const ClaimModel = mongoose.model<ClaimDoc>('Claim', claimSchema)
+const ClaimModel = mongoose.model<ClaimDoc>('ClaimModel', claimSchema)
 
 export { ClaimModel }

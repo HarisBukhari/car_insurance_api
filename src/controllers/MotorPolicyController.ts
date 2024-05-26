@@ -12,7 +12,7 @@ export const createMotorPolicy = async (req: Request, res: Response, next: NextF
     try {
         const session = await mongoose.startSession()
         const files = req.files as { [key: string]: Express.Multer.File[] }
-        let motorPolicy
+        let FObj
         try {
             await session.withTransaction(async () => {
                 //Validations
@@ -52,10 +52,11 @@ export const createMotorPolicy = async (req: Request, res: Response, next: NextF
                     others_1: others_1?.[0]?.path || '',
                     lpo_1: lpo_1?.[0]?.path || ''
                 }
-                motorPolicy = new MotorPolicy(docmotorPolicy)
+                const motorPolicy = new MotorPolicy(docmotorPolicy)
+                FObj = { car, motorThirdparty, motorPolicy }
                 await motorPolicy.save({ session })
             })
-            return res.status(201).json(motorPolicy)
+            return res.status(201).json(FObj)
         } catch (err) {
             next(err)
         } finally {
