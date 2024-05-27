@@ -1,4 +1,5 @@
-import { IsEmail, Length } from "class-validator"
+import { Transform } from "class-transformer"
+import { IsDate, IsEmail, Length } from "class-validator"
 
 export class CreateUserInputs {
 
@@ -11,11 +12,25 @@ export class CreateUserInputs {
     @Length(7, 12)
     password: string
 
-    @Length(3, 16)
-    firstName: string
+    @Length(3, 20)
+    fullName: string
+
+    @Length(4, 30)
+    emiratesId: string
+
+    @Transform(({ value }) => new Date(value))
+    @IsDate()
+    dateOfBirth: Date
+
+}
+
+export class EditUserInputs {
 
     @Length(3, 16)
-    lastName: string
+    fullName: string
+
+    @IsEmail()
+    email: string
 
     @Length(6, 30)
     address: string
@@ -23,19 +38,13 @@ export class CreateUserInputs {
     @Length(4, 30)
     emiratesId: string
 
-}
+    @Length(7, 12)
+    phone: string
 
-export class EditUserInputs {
-
-    @Length(3, 16)
-    firstName: string
-
-    @Length(3, 16)
-    lastName: string
-
-    @Length(6, 30)
-    address: string
-
+    @Transform(({ value }) => new Date(value))
+    @IsDate()
+    dateOfBirth: Date
+    
 }
 
 export interface UserPayload {

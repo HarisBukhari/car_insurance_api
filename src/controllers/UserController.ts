@@ -67,7 +67,7 @@ export const UserSignUp = async (req: Request, res: Response, next: NextFunction
         if (inputErrors.length > 0) {
             throw new BadRequestError('Input validation error', 'User/SignUp')
         }
-        const { email, password, phone, firstName, lastName, address, emiratesId } = UserInputs
+        const { email, password, phone, emiratesId } = UserInputs
         const salt = await generateSalt()
         const userPassword = await hashPassword(password, salt)
         const ExistingUser = await findUser('', email)
@@ -82,9 +82,6 @@ export const UserSignUp = async (req: Request, res: Response, next: NextFunction
             phone,
             otp,
             otp_expiry,
-            firstName,
-            lastName,
-            address,
             emiratesId,
             verified: false,
             provider: 'App',
@@ -208,13 +205,16 @@ export const UpdateUserProfile = async (req: Request, res: Response, next: NextF
             throw new BadRequestError('Invalid inputs', 'User/UpdateUserProfile')
         }
         const User = req.User
-        const { firstName, lastName, address } = UserInputs
+        const { fullName, email, address, emiratesId, phone, dateOfBirth } = UserInputs
         if (User) {
             const UserProfile = await (findUser(User._id, ""))
             if (UserProfile) {
-                UserProfile.firstName = firstName
-                UserProfile.lastName = lastName
-                UserProfile.address = address
+                if (fullName !== undefined) UserProfile.fullName = fullName
+                if (email !== undefined) UserProfile.email = email
+                if (address !== undefined) UserProfile.address = address
+                if (emiratesId !== undefined) UserProfile.emiratesId = emiratesId
+                if (phone !== undefined) UserProfile.phone = phone
+                if (dateOfBirth !== undefined) UserProfile.dateOfBirth = dateOfBirth
                 await UserProfile.save()
                 return res.status(200).json(UserProfile)
             }
