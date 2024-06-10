@@ -12,7 +12,7 @@ export const createMotorPolicy = async (req: Request, res: Response, next: NextF
     try {
         const session = await mongoose.startSession()
         const files = req.files as { [key: string]: Express.Multer.File[] }
-        let FObj
+        let FObj: any
         try {
             await session.withTransaction(async () => {
                 //Validations
