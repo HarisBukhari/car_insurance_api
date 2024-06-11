@@ -1,5 +1,5 @@
 import express from "express"
-import { createMotorPolicy, deleteMotorPolicy, getAllMotorPolicies, getMotorPolicyById, updateMotorPolicy } from "../controllers"
+import { createMotorPolicy, deleteMotorPolicy, getAllMotorPolicies, getMotorPolicyById, imageHandler, updateMotorPolicy } from "../controllers"
 import { Authenticate } from "../middlewares"
 import multer from "multer"
 
@@ -36,8 +36,9 @@ const handleImageUpload = imageUpload.fields([
 router.use(Authenticate)
 
 // /* ------------------- Motor Policy Section --------------------- */
-router.get('/MotorPolicies', getAllMotorPolicies)
 router.post('/createMotorPolicy', handleImageUpload, createMotorPolicy)
+router.post('/createMotorPolicy/:id', imageUpload.single('file'), handleImageUpload, imageHandler)
+router.get('/MotorPolicies', getAllMotorPolicies)
 router.get('/:id', getMotorPolicyById)
 router.delete('/:id', deleteMotorPolicy)
 router.post('/:id', updateMotorPolicy)

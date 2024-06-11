@@ -66,7 +66,42 @@ export const createMotorPolicy = async (req: Request, res: Response, next: NextF
         next(err)
     }
 }
-
+// Function for images
+export const imageHandler = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        console.log(JSON.parse(req.body))
+        return res.send('Ook')
+        const files = req.files as { [key: string]: Express.Multer.File[] }
+        const motorPolicyId = req.params.id
+        const motorPolicy = await MotorPolicy.findOne({ _id: motorPolicyId, user: req.User._id })
+        if (motorPolicy) {
+            // Delete car and motorThirdparty references (existing code)
+            if (!files) {
+                return res.status(400).send('No files uploaded!')
+            }
+            const { mulkiya_Hayaza, drivingLicense, emiratesID, mulkiya, lpo, drivingLicense_1, hayaza_1, passing_1, others_1, lpo_1 } = files
+            // Extract file paths from MotorPolicy object
+            motorPolicy.mulkiya_Hayaza = mulkiya_Hayaza?.[0]?.path ?? motorPolicy.mulkiya_Hayaza
+            motorPolicy.drivingLicense = drivingLicense?.[0]?.path ?? motorPolicy.drivingLicense
+            motorPolicy.emiratesID = emiratesID?.[0]?.path ?? motorPolicy.emiratesID
+            motorPolicy.mulkiya = mulkiya?.[0]?.path ?? motorPolicy.mulkiya
+            motorPolicy.lpo = lpo?.[0]?.path ?? motorPolicy.lpo
+            motorPolicy.drivingLicense_1 = drivingLicense_1?.[0]?.path ?? motorPolicy.drivingLicense_1
+            motorPolicy.hayaza_1 = hayaza_1?.[0]?.path ?? motorPolicy.hayaza_1
+            motorPolicy.passing_1 = passing_1?.[0]?.path ?? motorPolicy.passing_1
+            motorPolicy.others_1 = others_1?.[0]?.path ?? motorPolicy.others_1
+            motorPolicy.lpo_1 = lpo_1?.[0]?.path ?? motorPolicy.lpo_1
+            const result = await motorPolicy.save()
+            if (result) {
+                return res.status(200).json(result)
+            }
+            throw new CustomError('Something Went Wrong', 'MotorPolicy/imageHandler')
+        }
+        throw new NotFoundError('MotorPolicy not found or does not belong to the user', 'MotorPolicy/deleteMotorPolicy')
+    } catch (err) {
+        next(err)
+    }
+}
 
 
 // Function to get all MotorPolicies

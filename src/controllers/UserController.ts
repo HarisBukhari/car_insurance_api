@@ -59,6 +59,35 @@ export const verifyToken = async (token: string) => {
     }
 }
 
+export const UserLogin = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const UserInputs = plainToClass(UsersLogin, req.body)
+        const inputErrors = await validate(UserInputs, { validationError: { target: true } })
+        if (inputErrors.length > 0) {
+            throw new BadRequestError('Input validation error', 'User/UserLogin')
+        }
+        const { email, password } = UserInputs
+        if (email && password) {
+            const user = await findUser('', email)
+            if (user) {
+                let validPassword = await verifyPassword(password, user.password)
+                if (validPassword) {
+                    const sign = generateSign({
+                        _id: user._id.toString(),
+                        email: user.email,
+                        verified: user.verified,
+                    })
+                    return res.status(200).send({ token: sign })
+                }
+                throw new BadRequestError('Input validation error', 'User/UserLogin')
+            }
+            throw new NotFoundError('Input validation error', 'User/UserLogin')
+        }
+        throw new BadRequestError('Input validation error', 'User/UserLogin')
+    } catch (err) {
+        next(err)
+    }
+}
 
 export const UserSignUp = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -77,7 +106,7 @@ export const UserSignUp = async (req: Request, res: Response, next: NextFunction
         const { otp, otp_expiry } = generateOtop()
         const user = await User.create({
             email,
-            password,
+            password: userPassword,
             salt,
             phone,
             otp,
@@ -103,36 +132,6 @@ export const UserSignUp = async (req: Request, res: Response, next: NextFunction
         } else {
             throw new CustomError('Database Error', 'User/Signup')
         }
-    } catch (err) {
-        next(err)
-    }
-}
-
-export const UserLogin = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const UserInputs = plainToClass(UsersLogin, req.body)
-        const inputErrors = await validate(UserInputs, { validationError: { target: true } })
-        if (inputErrors.length > 0) {
-            throw new BadRequestError('Input validation error', 'User/UserLogin')
-        }
-        const { email, password } = UserInputs
-        if (email && password) {
-            const user = await findUser('', email)
-            if (user) {
-                let validPassword = await verifyPassword(password, user.password)
-                if (validPassword) {
-                    const sign = generateSign({
-                        _id: user._id.toString(),
-                        email: user.email,
-                        verified: false,
-                    })
-                    return res.status(200).send({ token: sign })
-                }
-                throw new BadRequestError('Input validation error', 'User/UserLogin')
-            }
-            throw new NotFoundError('Input validation error', 'User/UserLogin')
-        }
-        throw new BadRequestError('Input validation error', 'User/UserLogin')
     } catch (err) {
         next(err)
     }

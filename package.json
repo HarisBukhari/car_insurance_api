@@ -21,8 +21,8 @@
   },
   "homepage": "https://github.com/HarisBukhari/car_insurance_api#readme",
   "dependencies": {
-    "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
+    "bcrypt": "^5.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cors": "^2.8.5",
