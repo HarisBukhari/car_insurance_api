@@ -16,8 +16,10 @@ const imageStorage = multer.diskStorage({
         cb(null, uniqueSuffix + '.' + originalExt); // Combine unique suffix and original extension
     }
 })
-
+// const imageUploadSingle = multer({ storage: imageStorage, limits: { fileSize: 1024 * 1024 * 5 } }); // Set a limit of 5MB for uploaded files
 const imageUpload = multer({ storage: imageStorage })
+
+// const handleImageUpload = imageUpload.single('lpo')
 
 const handleImageUpload = imageUpload.fields([
     { name: 'mulkiya_Hayaza', maxCount: 1 },
@@ -36,8 +38,8 @@ const handleImageUpload = imageUpload.fields([
 router.use(Authenticate)
 
 // /* ------------------- Motor Policy Section --------------------- */
-router.post('/createMotorPolicy', handleImageUpload, createMotorPolicy)
-router.post('/createMotorPolicy/:id', imageUpload.single('file'), handleImageUpload, imageHandler)
+router.post('/createMotorPolicy', createMotorPolicy)
+router.post('/createMotorPolicy/:id', handleImageUpload, imageHandler)
 router.get('/MotorPolicies', getAllMotorPolicies)
 router.get('/:id', getMotorPolicyById)
 router.delete('/:id', deleteMotorPolicy)

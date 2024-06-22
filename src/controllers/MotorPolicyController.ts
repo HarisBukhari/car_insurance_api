@@ -7,18 +7,22 @@ import { BadRequestError, CustomError, NotFoundError } from "../error"
 import mongoose from "mongoose"
 import { promisify } from 'util'
 
+// AH_F
+const fs = require('fs').promises
+const MAX_RETRIES = 3
+
+
 // Function to create a new MotorPolicy
 export const createMotorPolicy = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const session = await mongoose.startSession()
-        const files = req.files as { [key: string]: Express.Multer.File[] }
         let FObj: any
         try {
             await session.withTransaction(async () => {
                 //Validations
-                const CarInputs = plainToClass(CreateCarInputs, JSON.parse(req.body.Car))
-                const MotorThirdpartyInputs = plainToClass(CreateMotorThirdpartyInputs, JSON.parse(req.body.MotorThirdparty))
-                const MotorPolicyInputs = plainToClass(CreateMotorPolicyInputs, JSON.parse(req.body.MotorPolicy))
+                const CarInputs = plainToClass(CreateCarInputs, req.body.Car)
+                const MotorThirdpartyInputs = plainToClass(CreateMotorThirdpartyInputs, req.body.MotorThirdparty)
+                const MotorPolicyInputs = plainToClass(CreateMotorPolicyInputs, req.body.MotorPolicy)
                 const CarInputErrors = await validate(CarInputs, { validationError: { target: true } })
                 const MotorThirdpartyInputsErrors = await validate(MotorThirdpartyInputs, { validationError: { target: true } })
                 const MotorPolicyInputsErrors = await validate(MotorPolicyInputs, { validationError: { target: true } })
@@ -26,10 +30,6 @@ export const createMotorPolicy = async (req: Request, res: Response, next: NextF
                 if (CarInputErrors.length > 0 || MotorThirdpartyInputsErrors.length > 0 || MotorPolicyInputsErrors.length > 0) {
                     throw new BadRequestError('MotorPolicy Input validation error(s)', 'MotorPolicy/createMotorPolicy')
                 }
-                if (!files) {
-                    return res.status(400).send('No files uploaded!')
-                }
-                const { mulkiya_Hayaza, drivingLicense, emiratesID, mulkiya, lpo, drivingLicense_1, hayaza_1, passing_1, others_1, lpo_1 } = files
                 const car = new Car(CarInputs)
                 await car.save({ session })
                 const motorThirdparty = new MotorThirdparty(MotorThirdpartyInputs)
@@ -40,17 +40,7 @@ export const createMotorPolicy = async (req: Request, res: Response, next: NextF
                     user: convertedUserId,
                     car: car._id,
                     motorThirdparty: motorThirdparty._id,
-                    ...MotorPolicyInputs,
-                    mulkiya_Hayaza: mulkiya_Hayaza?.[0]?.path || '',
-                    drivingLicense: drivingLicense?.[0]?.path || '',
-                    emiratesID: emiratesID?.[0]?.path || '',
-                    mulkiya: mulkiya?.[0]?.path || '',
-                    lpo: lpo?.[0]?.path || '',
-                    drivingLicense_1: drivingLicense_1?.[0]?.path || '',
-                    hayaza_1: hayaza_1?.[0]?.path || '',
-                    passing_1: passing_1?.[0]?.path || '',
-                    others_1: others_1?.[0]?.path || '',
-                    lpo_1: lpo_1?.[0]?.path || ''
+                    ...MotorPolicyInputs
                 }
                 const motorPolicy = new MotorPolicy(docmotorPolicy)
                 FObj = { car, motorThirdparty, motorPolicy }
@@ -69,9 +59,12 @@ export const createMotorPolicy = async (req: Request, res: Response, next: NextF
 // Function for images
 export const imageHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        console.log(JSON.parse(req.body))
-        return res.send('Ook')
         const files = req.files as { [key: string]: Express.Multer.File[] }
+        const fileArray = []
+        const oldFileArray = []
+        for (const key in files) {
+            fileArray.push(files[key]?.[0]?.path)
+        }
         const motorPolicyId = req.params.id
         const motorPolicy = await MotorPolicy.findOne({ _id: motorPolicyId, user: req.User._id })
         if (motorPolicy) {
@@ -79,24 +72,21 @@ export const imageHandler = async (req: Request, res: Response, next: NextFuncti
             if (!files) {
                 return res.status(400).send('No files uploaded!')
             }
-            const { mulkiya_Hayaza, drivingLicense, emiratesID, mulkiya, lpo, drivingLicense_1, hayaza_1, passing_1, others_1, lpo_1 } = files
-            // Extract file paths from MotorPolicy object
-            motorPolicy.mulkiya_Hayaza = mulkiya_Hayaza?.[0]?.path ?? motorPolicy.mulkiya_Hayaza
-            motorPolicy.drivingLicense = drivingLicense?.[0]?.path ?? motorPolicy.drivingLicense
-            motorPolicy.emiratesID = emiratesID?.[0]?.path ?? motorPolicy.emiratesID
-            motorPolicy.mulkiya = mulkiya?.[0]?.path ?? motorPolicy.mulkiya
-            motorPolicy.lpo = lpo?.[0]?.path ?? motorPolicy.lpo
-            motorPolicy.drivingLicense_1 = drivingLicense_1?.[0]?.path ?? motorPolicy.drivingLicense_1
-            motorPolicy.hayaza_1 = hayaza_1?.[0]?.path ?? motorPolicy.hayaza_1
-            motorPolicy.passing_1 = passing_1?.[0]?.path ?? motorPolicy.passing_1
-            motorPolicy.others_1 = others_1?.[0]?.path ?? motorPolicy.others_1
-            motorPolicy.lpo_1 = lpo_1?.[0]?.path ?? motorPolicy.lpo_1
+            // Add new files
+            for (const key in files) {
+                if (motorPolicy[key]) oldFileArray.push(motorPolicy[key])
+                motorPolicy[key] = files[key]?.[0]?.path
+            }
             const result = await motorPolicy.save()
             if (result) {
+                if(oldFileArray.length > 0){
+                    await deleteImages(oldFileArray)
+                }
                 return res.status(200).json(result)
             }
             throw new CustomError('Something Went Wrong', 'MotorPolicy/imageHandler')
         }
+        await deleteImages(fileArray)
         throw new NotFoundError('MotorPolicy not found or does not belong to the user', 'MotorPolicy/deleteMotorPolicy')
     } catch (err) {
         next(err)
@@ -163,38 +153,28 @@ export const deleteMotorPolicy = async (req: Request, res: Response, next: NextF
                     // Delete car and motorThirdparty references (existing code)
                     const car = await Car.findOneAndDelete({ _id: motorPolicy.car }, { session })
                     const motorThirdparty = await MotorThirdparty.findOneAndDelete({ _id: motorPolicy.motorThirdparty }, { session })
-
                     // Extract file paths from MotorPolicy object
-                    const filePaths = [
-                        motorPolicy.mulkiya_Hayaza,
-                        motorPolicy.drivingLicense,
-                        motorPolicy.emiratesID,
-                        motorPolicy.mulkiya,
-                        motorPolicy.lpo,
-                        motorPolicy.drivingLicense_1,
-                        motorPolicy.hayaza_1,
-                        motorPolicy.passing_1,
-                        motorPolicy.others_1,
-                        motorPolicy.lpo_1
+                    const filePaths = []
+                    // Loop through desired properties of motorPolicy
+                    const properties = [
+                        "mulkiya_Hayaza",
+                        "drivingLicense",
+                        "emiratesID",
+                        "mulkiya",
+                        "lpo",
+                        "drivingLicense_1",
+                        "hayaza_1",
+                        "passing_1",
+                        "others_1",
+                        "lpo_1",
                     ]
-
-                    // Function to delete a file using promises (cleaner approach)
-                    const unlinkAsync = promisify(require('fs').unlink)
-
-                    // Delete files concurrently (optional for performance)
-                    const deletePromises = filePaths.filter(Boolean).map(async (filePath) => { // filter out empty paths
-                        if (filePath) {
-                            try {
-                                await unlinkAsync(filePath)
-                                console.log(`Deleted file: ${filePath}`) // Optional logging
-                            } catch (error) {
-                                console.error(`Error deleting file: ${filePath}`, error)
-                            }
+                    properties.forEach((prop) => {
+                        if (motorPolicy[prop]) {
+                            filePaths.push(motorPolicy[prop])
                         }
                     })
-
-                    await Promise.all(deletePromises) // Wait for all deletions to finish
-
+                    // Delete images (existing code)
+                    await deleteImages(filePaths)
                     const deletedMotorPolicy = await MotorPolicy.findOneAndDelete({ _id: motorPolicy._id }, { session })
 
                     if (car || motorThirdparty || deletedMotorPolicy) {
@@ -214,3 +194,39 @@ export const deleteMotorPolicy = async (req: Request, res: Response, next: NextF
 }
 
 
+const deleteImages = async (filePaths: string[]) => {
+    try {
+        const validPaths = filePaths.filter(Boolean);
+
+        if (!validPaths.length) {
+            console.log('No valid file paths provided for deletion.');
+            return;
+        }
+
+        const deletionPromises = validPaths.map(async (filePath, index) => {
+            let retryCount = 0;
+            while (retryCount < MAX_RETRIES) {
+                try {
+                    await fs.unlink(filePath);
+                    console.log(`Deleted file: ${filePath}`);
+                    break; // Exit loop on successful deletion
+                } catch (error) {
+                    retryCount++;
+                    console.error(`Error deleting file: ${filePath} (attempt ${retryCount}/${MAX_RETRIES})`, error);
+                    // Consider additional actions based on error type (e.g., exponential backoff)
+                }
+            }
+
+            if (retryCount === MAX_RETRIES) {
+                console.error(`Failed to delete file after ${MAX_RETRIES} retries: ${filePath}`);
+                // Consider throwing an error or taking alternative actions
+            }
+        });
+
+        await Promise.all(deletionPromises);
+
+    } catch (error) {
+        console.error('Unexpected error during deletion:', error);
+        // Handle unexpected errors outside the retry logic
+    }
+}
